@@ -398,7 +398,7 @@
             Set-DnsClientServerAddress -InterfaceAlias $ethernetadaptername -ServerAddresses $newDNS; Start-Sleep -s 2
             ipconfig /flushdns; Start-Sleep -s 2
     
-    # Other benefitial settings
+    # Other beneficial settings
     
         # Show file extensions
             If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced")) {

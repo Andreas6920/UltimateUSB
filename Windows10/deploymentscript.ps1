@@ -341,49 +341,5 @@
             Write-Progress -Completed -Activity "make progress bar dissapear"
             Write-Host "        - Firewall configuration complete." -f Yellow
             start-sleep -s 3
-
-# Send Microsoft a request to delete collected data about you.
-function block_input{
-    $code = @"
-[DllImport("user32.dll")]
-public static extern bool BlockInput(bool fBlockIt);
-"@
-    $userInput = Add-Type -MemberDefinition $code -Name UserInput -Namespace UserInput -PassThru
-    $userInput::BlockInput($true)
-    }
-
-function allow_input{
-    $code = @"
-[DllImport("user32.dll")]
-public static extern bool BlockInput(bool fBlockIt);
-"@
-    $userInput = Add-Type -MemberDefinition $code -Name UserInput -Namespace UserInput -PassThru
-    $userInput::BlockInput($false)
-    }
-
-
-block_input | Out-Null
-
-# SUBMIT REQUEST TO MICROSOFT REGARDS DELETING DATA ABOUT YOU
-    Write-host "      SUBMIT - request to Microsoft to delete data about you." -f green
-    Start-Sleep -s 2
-    
-    $app = New-Object -ComObject Shell.Application
-    $key = New-Object -com Wscript.Shell
-
-    $app.open("ms-settings:privacy-feedback")
-    $key.AppActivate("Settings") | out-null
-    Start-Sleep -s 2
-    $key.SendKeys("{TAB}")
-    $key.SendKeys("{TAB}")
-    $key.SendKeys("{TAB}")
-    $key.SendKeys("{TAB}")
-    $key.SendKeys("{TAB}")
-    Start-Sleep -s 1
-    $key.SendKeys("{ENTER}")
-    Start-Sleep -s 2
-    $key.SendKeys("%{F4}")
-    Start-Sleep -s 1
-    
-    #unlocking keyboard and mouse
-    allow_input | Out-Null
+            
+        

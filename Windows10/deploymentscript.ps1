@@ -393,6 +393,16 @@
             Start-Sleep -s 3
             
         # Setting DNS to a privacy focused vendor
+            Add-Type -AssemblyName System.Windows.Forms
+            $global:balloon = New-Object System.Windows.Forms.NotifyIcon
+            $path = (Get-Process -id $pid).Path
+            $balloon.Icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path) 
+            $balloon.BalloonTipIcon = [System.Windows.Forms.ToolTipIcon]::Info
+            $balloon.BalloonTipText = 'Windows Settings'
+            $balloon.BalloonTipTitle = "Setting private DNS server.."
+            $balloon.Visible = $true 
+            $balloon.ShowBalloonTip(50000)
+
             $newDNS = ("94.140.14.14", "94.140.15.15") # AD GUARD: https://adguard.com/en/adguard-dns/overview.html
             $ethernetadaptername = (Get-NetAdapter | Where-Object {-not $_.Virtual -and $_.Status -eq 'up'}).Name
             Set-DnsClientServerAddress -InterfaceAlias $ethernetadaptername -ServerAddresses $newDNS; Start-Sleep -s 2

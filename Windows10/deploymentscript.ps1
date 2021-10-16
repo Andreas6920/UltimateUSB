@@ -66,7 +66,7 @@
         $layoutFile = "$env:SystemRoot\StartMenuLayout.xml"
         $layoutFile_new = (Invoke-WebRequest -uri "https://raw.githubusercontent.com/Andreas6920/deploy-project/main/resources/StartMenyLayout.xml" -UseBasicParsing).content    
         
-        start-sleep 3
+        Start-Sleep 3
         
         # Delete layout file if it already exists
             If (Test-Path $layoutFile) {    Remove-Item $layoutFile }   
@@ -102,7 +102,17 @@
 
 
     # unpin Taskbar
-        start-sleep -s 3
+        Add-Type -AssemblyName System.Windows.Forms
+        $global:balloon = New-Object System.Windows.Forms.NotifyIcon
+        $path = (Get-Process -id $pid).Path
+        $balloon.Icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path) 
+        $balloon.BalloonTipIcon = [System.Windows.Forms.ToolTipIcon]::Info
+        $balloon.BalloonTipText = 'Windows Settings'
+        $balloon.BalloonTipTitle = "Unpinning Taskbar.." 
+        $balloon.Visible = $true 
+        $balloon.ShowBalloonTip(50000)
+
+        Start-Sleep -s 3
         Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband -Name FavoritesChanges -Value 3 -Type Dword -Force | Out-Null
         Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband -Name FavoritesRemovedChanges -Value 32 -Type Dword -Force | Out-Null
         Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband -Name FavoritesVersion -Value 3 -Type Dword -Force | Out-Null
@@ -112,11 +122,21 @@
         set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name ShowTaskViewButton -Type DWord -Value 0 | Out-Null
         Remove-Item -Path "$env:APPDATA\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\*" -Recurse -Force | Out-Null
         Stop-Process -name explorer
-        start-sleep -s 1
+        Start-Sleep -s 1
 
     # Removing Microsoft Bloat
+        Add-Type -AssemblyName System.Windows.Forms
+        $global:balloon = New-Object System.Windows.Forms.NotifyIcon
+        $path = (Get-Process -id $pid).Path
+        $balloon.Icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path) 
+        $balloon.BalloonTipIcon = [System.Windows.Forms.ToolTipIcon]::Info
+        $balloon.BalloonTipText = 'Windows Settings'
+        $balloon.BalloonTipTitle = "Uninstalling bloatware.." 
+        $balloon.Visible = $true 
+        $balloon.ShowBalloonTip(50000)
+
         $ProgressPreference = "SilentlyContinue" #hide progressbar
-        start-sleep 3
+        Start-Sleep 3
         $Bloatware = @(
 
             "Microsoft.ZuneMusic"
@@ -189,7 +209,7 @@
             Get-AppxPackage -Name $Bloat | Remove-AppxPackage -ErrorAction SilentlyContinue | Out-Null
             Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $Bloat | Remove-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue | Out-Null}
         
-        start-sleep -s 3   
+        Start-Sleep -s 3   
         $Bloatschedules = @(
                 "XblGameSaveTaskLogon"
                 "XblGameSaveTask"
@@ -210,6 +230,15 @@
         Get-Printer | ? Name -cMatch "OneNote for Windows 10|Microsoft XPS Document Writer|Microsoft Print to PDF|Fax" | Remove-Printer 
 
     # Privacy settings
+        Add-Type -AssemblyName System.Windows.Forms
+        $global:balloon = New-Object System.Windows.Forms.NotifyIcon
+        $path = (Get-Process -id $pid).Path
+        $balloon.Icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path) 
+        $balloon.BalloonTipIcon = [System.Windows.Forms.ToolTipIcon]::Info
+        $balloon.BalloonTipText = 'Windows Settings'
+        $balloon.BalloonTipTitle = "Improving privacy settings.." 
+        $balloon.Visible = $true 
+        $balloon.ShowBalloonTip(50000)
 
         # Disable Advertising ID
         Write-host "        - Disabling advertising ID." -f yellow
@@ -300,8 +329,19 @@
                 
 
         # Adding entries to hosts file
+
+            Add-Type -AssemblyName System.Windows.Forms
+            $global:balloon = New-Object System.Windows.Forms.NotifyIcon
+            $path = (Get-Process -id $pid).Path
+            $balloon.Icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path) 
+            $balloon.BalloonTipIcon = [System.Windows.Forms.ToolTipIcon]::Info
+            $balloon.BalloonTipText = 'Windows Settings'
+            $balloon.BalloonTipTitle = "Blocking tracking domains.." 
+            $balloon.Visible = $true 
+            $balloon.ShowBalloonTip(50000)
+
             Write-host "      BLOCKING - Tracking domains (This may take a while).." -f green
-            start-sleep -s 3
+            Start-Sleep -s 3
             Write-Host "        - Backing up your hostsfile.." -f Yellow
             ## Taking backup of current hosts file first
             $hostsfile = "$env:SystemRoot\System32\drivers\etc\hosts"
@@ -323,10 +363,20 @@
             Write-Progress -Completed -Activity "make progress bar dissapear"
             ## flush DNS cache
             Write-host "        - Flushing local DNS cache" -f Yellow
-            ipconfig /flushdns | Out-Null; start-Sleep 2; nbtstat -R | Out-Null; start-Sleep -s 2;
+            ipconfig /flushdns | Out-Null; Start-Sleep 2; nbtstat -R | Out-Null; Start-Sleep -s 2;
             Stop-Process -name explorer; Start-Sleep -s 3
 
         # Blocking Microsoft Tracking IP's in the firewall
+            Add-Type -AssemblyName System.Windows.Forms
+            $global:balloon = New-Object System.Windows.Forms.NotifyIcon
+            $path = (Get-Process -id $pid).Path
+            $balloon.Icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path) 
+            $balloon.BalloonTipIcon = [System.Windows.Forms.ToolTipIcon]::Info
+            $balloon.BalloonTipText = 'Windows Settings'
+            $balloon.BalloonTipTitle = "Blocking tracking IP's.." 
+            $balloon.Visible = $true 
+            $balloon.ShowBalloonTip(50000)
+
             Write-host "      BLOCKING - Tracking IP's" -f green
             Write-Host "        - Getting updated lists of Microsoft's trackin IP's" -f Yellow
             $blockip = Invoke-WebRequest -Uri https://raw.githubusercontent.com/crazy-max/WindowsSpyBlocker/master/data/firewall/spy.txt  -UseBasicParsing
@@ -340,6 +390,10 @@
             netsh advfirewall firewall add rule name="Block Microsoft Tracking IP: $ip_entry" dir=out action=block remoteip=$ip_entry enable=yes | Out-Null}
             Write-Progress -Completed -Activity "make progress bar dissapear"
             Write-Host "        - Firewall configuration complete." -f Yellow
-            start-sleep -s 3
+            Start-Sleep -s 3
             
-        
+        # Setting DNS to a privacy focused vendor
+            $newDNS = ("94.140.14.14", "94.140.15.15") # AD GUARD: https://adguard.com/en/adguard-dns/overview.html
+            $ethernetadaptername = (Get-NetAdapter | Where-Object {-not $_.Virtual -and $_.Status -eq 'up'}).Name
+            Set-DnsClientServerAddress -InterfaceAlias $ethernetadaptername -ServerAddresses $newDNS; Start-Sleep -s 2
+            ipconfig /flushdns; Start-Sleep -s 2

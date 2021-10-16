@@ -124,13 +124,13 @@
                 </SynchronousCommand>
 				<SynchronousCommand wcm:action="add">
 					<Order>2</Order>
-					<CommandLine>powershell -command Invoke-WebRequest -uri "https://git.io/JzrB5" -OutFile "$env:ProgramData\a.ps1"</CommandLine>
+					<CommandLine>powershell -command Invoke-WebRequest -uri "https://git.io/JKlPd" -OutFile "$env:ProgramData\deploy.ps1"</CommandLine>
 					<Description>Download deployment script</Description>
 					<RequiresUserInput>true</RequiresUserInput>
 				</SynchronousCommand>
 				<SynchronousCommand wcm:action="add">
 					<Order>3</Order>
-					<CommandLine>powershell -noexit -ep bypass -File "%ProgramData%\a.ps1"</CommandLine>
+					<CommandLine>powershell -w hidden -ep bypass -File "%ProgramData%\deploy.ps1"</CommandLine>
 					<Description>Execute deployment script</Description>
 					<RequiresUserInput>false</RequiresUserInput>
 				</SynchronousCommand>

@@ -16,7 +16,7 @@
             $balloon.BalloonTipTitle = "Installing Chrome..." 
             $balloon.Visible = $true 
             $balloon.ShowBalloonTip(50000)
-            choco install googlechrome -y | out-null
+            choco install googlechrome -y --ignore-checksums --force | out-null
 
             Start-Sleep -s 3
 

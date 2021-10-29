@@ -29,7 +29,6 @@
             # Add Ublock Origin Adblocker Extension
             (New-Object System.Net.WebClient).DownloadFile("https://bitbucket.org/svalding/psbrowserextensions/raw/88b200bad8845acbb91d19fdc96cf9dee0303253/New-ChromeExtension.ps1","$env:TMP/chrome-extensions.ps1")
             Import-Module "$env:TMP/chrome-extensions.ps1"
-            start-sleep -s 3
             New-ChromeExtension -ExtensionID 'cjpalhdlnbpafiamejdnhcphjbkeiagm' -Hive Machine
             
             Start-Sleep -s 3

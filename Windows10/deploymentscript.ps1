@@ -1,5 +1,10 @@
+## Need to be fixed
+# - Store my activity on this device -> disable
+
+
 # Install chocolatey
     Set-ExecutionPolicy Bypass -Scope Process -Force;
+    New-Item -Type File -Force $PROFILE
     (New-Object System.Net.WebClient).DownloadFile("https://chocolatey.org/install.ps1","$env:TMP/choco-install.ps1")
     # Executing installation file.
     cd $env:TMP; .\choco-install.ps1
@@ -17,6 +22,7 @@
             $balloon.Visible = $true 
             $balloon.ShowBalloonTip(50000)
             choco install googlechrome -y --ignore-checksums --force | out-null
+            choco install ublockorigin-chrome -y --ignore-checksums --force | out-null
 
             Start-Sleep -s 3
 
@@ -59,7 +65,7 @@
         $balloon.Icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path) 
         $balloon.BalloonTipIcon = [System.Windows.Forms.ToolTipIcon]::Info
         $balloon.BalloonTipText = 'Windows Settings'
-        $balloon.BalloonTipTitle = "Unpinning StartMenu.." 
+        $balloon.BalloonTipTitle = "Unpinning apps.." 
         $balloon.Visible = $true 
         $balloon.ShowBalloonTip(50000)
 
@@ -240,174 +246,170 @@
         $balloon.Visible = $true 
         $balloon.ShowBalloonTip(50000)
 
-        # Disable Advertising ID
-        Write-host "        - Disabling advertising ID." -f yellow
-        If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo")) {
-            New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Force | Out-Null}
-        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Name "Enabled" -Type DWord -Value 0
-        Start-Sleep -s 2
+        # General
+            # Disable Advertising ID
+            Write-host "        - Disabling advertising ID." -f yellow
+            If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo")) {
+                New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Force | Out-Null}
+            Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Name "Enabled" -Type DWord -Value 0
+            Start-Sleep -s 2
 
-        # Disable let websites provide locally relevant content by accessing language list
-        Write-host "        - Disabling location tracking." -f yellow
-        If (!(Test-Path "HKCU:\Control Panel\International\User Profile")) {
-            New-Item -Path "HKCU:\Control Panel\International\User Profile" -Force | Out-Null}
-        Set-ItemProperty -Path  "HKCU:\Control Panel\International\User Profile" -Name "HttpAcceptLanguageOptOut"  -Value 1
-        Start-Sleep -s 2
+            # Disable let websites provide locally relevant content by accessing language list
+            Write-host "        - Disabling location tracking." -f yellow
+            If (!(Test-Path "HKCU:\Control Panel\International\User Profile")) {
+                New-Item -Path "HKCU:\Control Panel\International\User Profile" -Force | Out-Null}
+            Set-ItemProperty -Path  "HKCU:\Control Panel\International\User Profile" -Name "HttpAcceptLanguageOptOut"  -Value 1
+            Start-Sleep -s 2
 
-        # Disable Show me suggested content in the Settings app
-        Write-host "        - Disabling personalized content suggestions." -f Yellow
-        If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager")) {
-            New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Force | Out-Null}
-        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-338393Enabled" -Type DWord -Value 0
-        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-353694Enabled" -Type DWord -Value 0
-        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-353696Enabled" -Type DWord -Value 0
-        Start-Sleep -s 2
+            # Disable Let Windows track app launches to improve Stat and search results
+            If (!(Test-Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced")) {
+                New-Item -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Force | Out-Null}
+            Set-ItemProperty -Path  "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Start_TrackProgs"  -Value 0    
 
-        # Disable Online Speech Recognition
-        Write-host "        - Disabling Online Speech Recognition." -f yellow
-        If (!(Test-Path "HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy")) {
-            New-Item -Path "HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy" -Force | Out-Null}
-        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy" -Name "HasAccepted" -Type DWord -Value 0
-        Start-Sleep -s 2
+            # Disable Show me suggested content in the Settings app
+            Write-host "        - Disabling personalized content suggestions." -f Yellow
+            If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager")) {
+                New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Force | Out-Null}
+            Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-338393Enabled" -Type DWord -Value 0
+            Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-353694Enabled" -Type DWord -Value 0
+            Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-353696Enabled" -Type DWord -Value 0
+            Start-Sleep -s 2
+        
+        # Speech
+            # Disable Online Speech Recognition
+            Write-host "        - Disabling Online Speech Recognition." -f yellow
+            If (!(Test-Path "HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy")) {
+                New-Item -Path "HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy" -Force | Out-Null}
+            Set-ItemProperty -Path "HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy" -Name "HasAccepted" -Type DWord -Value 0
+            Start-Sleep -s 2
 
-        # Hiding personal information from lock screen
-        Write-host "        - Hiding email and domain information from sign-in screen." -f yellow
-        If (!(Test-Path "HKLM:\Software\Policies\Microsoft\Windows\System")) {
-                New-Item -Path "HKLM:\Software\Policies\Microsoft\Windows\System" -Force | Out-Null}
-        Set-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows\System" -Name "DontDisplayLockedUserID" -Type DWord -Value 0
-        Set-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows\System" -Name "DontDisplayLastUsername" -Type DWord -Value 0
-        Start-Sleep -s 2
-
-        # Disable diagnostic data collection
-        If (!(Test-Path "HKLM:\Software\Policies\Microsoft\Windows\DataCollection")) {
-                New-Item -Path "HKLM:\Software\Policies\Microsoft\Windows\DataCollection" -Force | Out-Null}
-        Set-ItemProperty -Path  "HKLM:\Software\Policies\Microsoft\Windows\DataCollection" -Name "AllowTelemetry"  -Value 0
-        Start-Sleep -s 2
-
-        # Disable App Launch Tracking
-        If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced")) {
-                New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Force | Out-Null}
-        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy" -Name "Start_TrackProgs" -Type DWord -Value 0
-        Start-Sleep -s 2
-
-        # Disable "tailored expirence"
-        If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy")) {   
-                New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy" -Force | Out-Null}
-        Set-ItemProperty -Path  "HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy" -Name "TailoredExperiencesWithDiagnosticDataEnabled"  -Value 0
-        Start-Sleep -s 2
-
-        # Disable Inking & Typing Personalization
-        If (!(Test-Path "HKCU:\Software\Microsoft\InputPersonalization")) {
-        New-Item -Path "HKCU:\Software\Microsoft\InputPersonalization" -Force | Out-Null}
-        Set-ItemProperty -Path  "HKCU:\Software\Microsoft\InputPersonalization" -Name "RestrictImplicitTextCollection"  -Value 1
-        Set-ItemProperty -Path  "HKCU:\Software\Microsoft\InputPersonalization" -Name "RestrictImplicitInkCollection"  -Value 1
-        Start-Sleep -s 2
-
-
-        # Disabling services
-        Write-host "      BLOCKING - Tracking startup services" -f green
-        $trackingservices = @(
-        "diagnosticshub.standardcollector.service" # Microsoft (R) Diagnostics Hub Standard Collector Service
-        "DiagTrack"                                # Diagnostics Tracking Service
-        "dmwappushservice"                         # WAP Push Message Routing Service (see known issues)
-        "lfsvc"                                    # Geolocation Service
-        "TrkWks"                                   # Distributed Link Tracking Client
-        "XblAuthManager"                           # Xbox Live Auth Manager
-        "XblGameSave"                              # Xbox Live Game Save Service
-        "XboxNetApiSvc"                            # Xbox Live Networking Service
-                            )
-
-        foreach ($trackingservice in $trackingservices) {
-        if((Get-Service -Name $trackingservice | ? Starttype -ne Disabled)){
-        Get-Service | ? name -eq $trackingservice | Set-Service -StartupType Disabled}}
-
-        # Removing printers
-        If (!(Test-Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private")) {
-                New-Item -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private" -Force | Out-Null}
-                Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private" -Name "AutoSetup" -Type DWord -Value 0
-                Get-Printer | ? Name -Like * | Remove-Printer -ErrorAction SilentlyContinue
+        # Inking & Typing Personalization
+            # Use typing history patterns to create personal dictionary
+            If (!(Test-Path "HKCU:\Software\Microsoft\InputPersonalization")) {
+                New-Item -Path "HKCU:\Software\Microsoft\InputPersonalization" -Force | Out-Null}
+            Set-ItemProperty -Path  "HKCU:\Software\Microsoft\InputPersonalization" -Name "RestrictImplicitTextCollection"  -Value 1
+            Set-ItemProperty -Path  "HKCU:\Software\Microsoft\InputPersonalization" -Name "RestrictImplicitInkCollection"  -Value 1
+            Start-Sleep -s 2
+        
+        # Diagnostics & feedback
                 
-
-        # Adding entries to hosts file
-
-            Add-Type -AssemblyName System.Windows.Forms
-            $global:balloon = New-Object System.Windows.Forms.NotifyIcon
-            $path = (Get-Process -id $pid).Path
-            $balloon.Icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path) 
-            $balloon.BalloonTipIcon = [System.Windows.Forms.ToolTipIcon]::Info
-            $balloon.BalloonTipText = 'Windows Settings'
-            $balloon.BalloonTipTitle = "Blocking tracking domains.." 
-            $balloon.Visible = $true 
-            $balloon.ShowBalloonTip(50000)
-
-            Write-host "      BLOCKING - Tracking domains (This may take a while).." -f green
-            Start-Sleep -s 3
-            Write-Host "        - Backing up your hostsfile.." -f Yellow
-            ## Taking backup of current hosts file first
-            $hostsfile = "$env:SystemRoot\System32\drivers\etc\hosts"
-            $Takebackup = "$env:SystemRoot\System32\drivers\etc\hosts_backup"
-            Copy-Item $hostsfile $Takebackup
-
-            Write-Host "        - Getting an updated list of microsoft tracking domains" -f Yellow
-            $domain = Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/crazy-max/WindowsSpyBlocker/master/data/hosts/spy.txt'  -UseBasicParsing
-            $domain = $domain.Content | Foreach-object { $_ -replace "\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}", "" } | Foreach-object { $_ -replace " ", "" }
-            $domain = $domain.Split("`n") -notlike "#*" -notmatch "spynet2.microsoft.com" -match "\w"
-
-            Write-Host "        - Blocking domains from tracking-list" -f Yellow
-            foreach ($domain_entry in $domain) {
-            $counter++
-                    Write-Progress -Activity 'Adding entries to host file..' -CurrentOperation $domain_entry -PercentComplete (($counter /$domain.count) * 100)
-                    Add-Content -Encoding UTF8  $hostsfile ("`t" + "0.0.0.0" + "`t`t" + "$domain_entry") -ErrorAction SilentlyContinue
-                    Start-Sleep -Milliseconds 200
-            }
-            Write-Progress -Completed -Activity "make progress bar dissapear"
-            ## flush DNS cache
-            Write-host "        - Flushing local DNS cache" -f Yellow
-            ipconfig /flushdns | Out-Null; Start-Sleep 2; nbtstat -R | Out-Null; Start-Sleep -s 2;
-            Stop-Process -name explorer; Start-Sleep -s 3
-
-        # Blocking Microsoft Tracking IP's in the firewall
-            Add-Type -AssemblyName System.Windows.Forms
-            $global:balloon = New-Object System.Windows.Forms.NotifyIcon
-            $path = (Get-Process -id $pid).Path
-            $balloon.Icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path) 
-            $balloon.BalloonTipIcon = [System.Windows.Forms.ToolTipIcon]::Info
-            $balloon.BalloonTipText = 'Windows Settings'
-            $balloon.BalloonTipTitle = "Blocking tracking IP's.." 
-            $balloon.Visible = $true 
-            $balloon.ShowBalloonTip(50000)
-
-            Write-host "      BLOCKING - Tracking IP's" -f green
-            Write-Host "        - Getting updated lists of Microsoft's trackin IP's" -f Yellow
-            $blockip = Invoke-WebRequest -Uri https://raw.githubusercontent.com/crazy-max/WindowsSpyBlocker/master/data/firewall/spy.txt  -UseBasicParsing
-            $blockip = $blockip.Content | Foreach-object { $_ -replace "0.0.0.0 ", "" } | Out-String
-            $blockip = $blockip.Split("`n") -notlike "#*" -match "\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"
-            Clear-Variable -Name counter
-            Write-Host "        - Configuring blocking rules in your firewall.." -f Yellow
-            foreach ($ip_entry in $blockip) {
-            $counter++
-            Write-Progress -Activity 'Configuring firewall rules..' -CurrentOperation $ip_entry -PercentComplete (($counter /$blockip.count) * 100)
-            netsh advfirewall firewall add rule name="Block Microsoft Tracking IP: $ip_entry" dir=out action=block remoteip=$ip_entry enable=yes | Out-Null}
-            Write-Progress -Completed -Activity "make progress bar dissapear"
-            Write-Host "        - Firewall configuration complete." -f Yellow
-            Start-Sleep -s 3
+            # Diagnostic data collection
+            If (!(Test-Path "HKLM:\Software\Policies\Microsoft\Windows\DataCollection")) {
+                New-Item -Path "HKLM:\Software\Policies\Microsoft\Windows\DataCollection" -Force | Out-Null}
+            Set-ItemProperty -Path  "HKLM:\Software\Policies\Microsoft\Windows\DataCollection" -Name "AllowTelemetry"  -Value 0
+            Start-Sleep -s 2
             
-        # Setting DNS to a privacy focused vendor
-            Add-Type -AssemblyName System.Windows.Forms
-            $global:balloon = New-Object System.Windows.Forms.NotifyIcon
-            $path = (Get-Process -id $pid).Path
-            $balloon.Icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path) 
-            $balloon.BalloonTipIcon = [System.Windows.Forms.ToolTipIcon]::Info
-            $balloon.BalloonTipText = 'Windows Settings'
-            $balloon.BalloonTipTitle = "Setting private DNS server.."
-            $balloon.Visible = $true 
-            $balloon.ShowBalloonTip(50000)
+            
+            # Tailored expirence
+            If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy")) {   
+                New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy" -Force | Out-Null}
+                Set-ItemProperty -Path  "HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy" -Name "TailoredExperiencesWithDiagnosticDataEnabled"  -Value 0
+                Start-Sleep -s 2
+                
+        # Activity history
+            
+            # Disable "Store my activity on this device"
+            If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System")) {   
+                New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Force | Out-Null}
+            Set-ItemProperty -Path  "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "PublishUserActivities"  -Value 0
+            Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "EnableActivityFeed" -Type DWord -Value 0
+            Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "UploadUserActivities" -Type DWord -Value 0
+            Start-Sleep -s 2
 
-            $newDNS = ("94.140.14.14", "94.140.15.15") # AD GUARD: https://adguard.com/en/adguard-dns/overview.html
-            $ethernetadaptername = (Get-NetAdapter | Where-Object {-not $_.Virtual -and $_.Status -eq 'up'}).Name
-            Set-DnsClientServerAddress -InterfaceAlias $ethernetadaptername -ServerAddresses $newDNS; Start-Sleep -s 2
-            ipconfig /flushdns; Start-Sleep -s 2
-    
+                    
+            
+        #Other
+            
+            # Hiding personal information from lockscreen
+                If (!(Test-Path "HKLM:\Software\Policies\Microsoft\Windows\System")) {
+                    New-Item -Path "HKLM:\Software\Policies\Microsoft\Windows\System" -Force | Out-Null}
+                Set-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows\System" -Name "DontDisplayLockedUserID" -Type DWord -Value 0
+                Set-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows\System" -Name "DontDisplayLastUsername" -Type DWord -Value 0
+                Start-Sleep -s 2
+        
+            # Disabling services
+                Write-host "      BLOCKING - Tracking startup services" -f green
+                $trackingservices = @(
+                "diagnosticshub.standardcollector.service" # Microsoft (R) Diagnostics Hub Standard Collector Service
+                "DiagTrack"                                # Diagnostics Tracking Service
+                "dmwappushservice"                         # WAP Push Message Routing Service (see known issues)
+                "lfsvc"                                    # Geolocation Service
+                "TrkWks"                                   # Distributed Link Tracking Client
+                "XblAuthManager"                           # Xbox Live Auth Manager
+                "XblGameSave"                              # Xbox Live Game Save Service
+                "XboxNetApiSvc"                            # Xbox Live Networking Service
+                                    )
+
+                foreach ($trackingservice in $trackingservices) {
+                if((Get-Service -Name $trackingservice | ? Starttype -ne Disabled)){
+                Get-Service | ? name -eq $trackingservice | Set-Service -StartupType Disabled}}        
+
+            # Adding entries to hosts file
+                Add-Type -AssemblyName System.Windows.Forms
+                $global:balloon = New-Object System.Windows.Forms.NotifyIcon
+                $path = (Get-Process -id $pid).Path
+                $balloon.Icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path) 
+                $balloon.BalloonTipIcon = [System.Windows.Forms.ToolTipIcon]::Info
+                $balloon.BalloonTipText = 'Windows Settings'
+                $balloon.BalloonTipTitle = "Blocking tracking domains.." 
+                $balloon.Visible = $true 
+                $balloon.ShowBalloonTip(50000)
+
+                Write-host "      BLOCKING - Tracking domains (This may take a while).." -f green
+                Start-Sleep -s 3
+                Write-Host "        - Backing up your hostsfile.." -f Yellow
+                
+                    ## Taking backup of current hosts file first
+                    $hostsfile = "$env:SystemRoot\System32\drivers\etc\hosts"
+                    $Takebackup = "$env:SystemRoot\System32\drivers\etc\hosts_backup"
+                    Copy-Item $hostsfile $Takebackup
+
+                Write-Host "        - Getting an updated list of microsoft tracking domains" -f Yellow
+                $domain = Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/crazy-max/WindowsSpyBlocker/master/data/hosts/spy.txt'  -UseBasicParsing
+                $domain = $domain.Content | Foreach-object { $_ -replace "\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}", "" } | Foreach-object { $_ -replace " ", "" }
+                $domain = $domain.Split("`n") -notlike "#*" -notmatch "spynet2.microsoft.com" -match "\w"
+
+                Write-Host "        - Blocking domains from tracking-list" -f Yellow
+                foreach ($domain_entry in $domain) {
+                $counter++
+                        Write-Progress -Activity 'Adding entries to host file..' -CurrentOperation $domain_entry -PercentComplete (($counter /$domain.count) * 100)
+                        Add-Content -Encoding UTF8  $hostsfile ("`t" + "0.0.0.0" + "`t`t" + "$domain_entry") -ErrorAction SilentlyContinue
+                        Start-Sleep -Milliseconds 200
+                }
+                Write-Progress -Completed -Activity "make progress bar dissapear"
+                ## flush DNS cache
+                Write-host "        - Flushing local DNS cache" -f Yellow
+                ipconfig /flushdns | Out-Null; Start-Sleep 2; nbtstat -R | Out-Null; Start-Sleep -s 2;
+                Stop-Process -name explorer; Start-Sleep -s 3
+
+            
+            # Blocking Microsoft Tracking IP's in the firewall
+                Add-Type -AssemblyName System.Windows.Forms
+                $global:balloon = New-Object System.Windows.Forms.NotifyIcon
+                $path = (Get-Process -id $pid).Path
+                $balloon.Icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path) 
+                $balloon.BalloonTipIcon = [System.Windows.Forms.ToolTipIcon]::Info
+                $balloon.BalloonTipText = 'Windows Settings'
+                $balloon.BalloonTipTitle = "Blocking tracking IP's.." 
+                $balloon.Visible = $true 
+                $balloon.ShowBalloonTip(50000)
+
+                Write-host "      BLOCKING - Tracking IP's" -f green
+                Write-Host "        - Getting updated lists of Microsoft's trackin IP's" -f Yellow
+                $blockip = Invoke-WebRequest -Uri https://raw.githubusercontent.com/crazy-max/WindowsSpyBlocker/master/data/firewall/spy.txt  -UseBasicParsing
+                $blockip = $blockip.Content | Foreach-object { $_ -replace "0.0.0.0 ", "" } | Out-String
+                $blockip = $blockip.Split("`n") -notlike "#*" -match "\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"
+                Clear-Variable -Name counter
+                Write-Host "        - Configuring blocking rules in your firewall.." -f Yellow
+                foreach ($ip_entry in $blockip) {
+                $counter++
+                Write-Progress -Activity 'Configuring firewall rules..' -CurrentOperation $ip_entry -PercentComplete (($counter /$blockip.count) * 100)
+                netsh advfirewall firewall add rule name="Block Microsoft Tracking IP: $ip_entry" dir=out action=block remoteip=$ip_entry enable=yes | Out-Null}
+                Write-Progress -Completed -Activity "make progress bar dissapear"
+                Write-Host "        - Firewall configuration complete." -f Yellow
+                Start-Sleep -s 3
+            
+        
     # Other beneficial settings
     
         # Show file extensions
@@ -434,3 +436,21 @@
             If (!(Test-Path HKLM:\Software\Policies\Microsoft\Windows\Personalization)) {
                 New-Item -Path HKLM:\Software\Policies\Microsoft\Windows -Name Personalization | Out-Null}
             Set-ItemProperty -Path HKLM:\Software\Policies\Microsoft\Windows\Personalization -Name NoLockScreen -Type DWord -Value 1
+        
+        # Removing printers
+            If (!(Test-Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private")) {
+                New-Item -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private" -Force | Out-Null}
+            Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private" -Name "AutoSetup" -Type DWord -Value 0
+            Get-Printer | Where-Object Name -Like * | Remove-Printer -ErrorAction SilentlyContinue
+        
+        # Show seconds in taskbar
+            If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced")) {
+                New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" | Out-Null}
+            Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowSecondsInSystemClock" -Type DWord -Value 1
+            Stop-Process -name explorer; Start-Sleep -s 3
+
+        # Setting DNS
+            $newDNS = ("1.1.1.1", "1.0.0.1") # AD GUARD: https://adguard.com/en/adguard-dns/overview.html
+            $ethernetadaptername = (Get-NetAdapter | Where-Object {-not $_.Virtual -and $_.Status -eq 'up'}).Name
+            Set-DnsClientServerAddress -InterfaceAlias $ethernetadaptername -ServerAddresses $newDNS; Start-Sleep -s 2
+            ipconfig /flushdns; Start-Sleep -s 2

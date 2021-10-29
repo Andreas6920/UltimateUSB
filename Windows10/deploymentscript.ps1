@@ -1,5 +1,4 @@
 ## Need to be fixed
-# - Store my activity on this device -> disable
 
 
 # Install chocolatey
@@ -8,6 +7,7 @@
     (New-Object System.Net.WebClient).DownloadFile("https://chocolatey.org/install.ps1","$env:TMP/choco-install.ps1")
     # Executing installation file.
     cd $env:TMP; .\choco-install.ps1
+    write-host "choco installed."
     
     Start-Sleep -s 3
 
@@ -22,10 +22,18 @@
             $balloon.Visible = $true 
             $balloon.ShowBalloonTip(50000)
             choco install googlechrome -y --ignore-checksums --force | out-null
-            choco install ublockorigin-chrome -y --ignore-checksums --force | out-null
-
+            # BUG FIX: Transparent dropdown menu
+            If (!(Test-Path "HKLM:\SOFTWARE\Policies\Google\Chrome\")) {
+                New-Item -Path "HKLM:\SOFTWARE\Policies\Google\Chrome\" -Force | Out-Null}
+            Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Google\Chrome\" -Name "HardwareAccelerationModeEnabled" -Type DWord -Value 0
+            # Add Ublock Origin Adblocker Extension
+            (New-Object System.Net.WebClient).DownloadFile("https://bitbucket.org/svalding/psbrowserextensions/raw/88b200bad8845acbb91d19fdc96cf9dee0303253/New-ChromeExtension.ps1","$env:TMP/chrome-extensions.ps1")
+            Import-Module "$env:TMP/chrome-extensions.ps1"
+            start-sleep -s 3
+            New-ChromeExtension -ExtensionID 'cjpalhdlnbpafiamejdnhcphjbkeiagm' -Hive Machine
+            
             Start-Sleep -s 3
-
+            
         # Installing 7-Zip
             Add-Type -AssemblyName System.Windows.Forms
             $global:balloon = New-Object System.Windows.Forms.NotifyIcon
@@ -39,7 +47,7 @@
             choco install 7Zip -y | out-null
             
             Start-Sleep -s 3
-
+            
         # Installing VLC
             Add-Type -AssemblyName System.Windows.Forms
             $global:balloon = New-Object System.Windows.Forms.NotifyIcon
@@ -53,7 +61,8 @@
             choco install VLC -y | out-null
             
             Start-Sleep -s 3
-
+            
+            
    
 # Cleaning windows 
 
@@ -437,6 +446,20 @@
                 New-Item -Path HKLM:\Software\Policies\Microsoft\Windows -Name Personalization | Out-Null}
             Set-ItemProperty -Path HKLM:\Software\Policies\Microsoft\Windows\Personalization -Name NoLockScreen -Type DWord -Value 1
         
+        # Skip IE first run wizard
+            If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Main")) {
+            New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Main" -Force | Out-Null}
+            Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Main" -Name "DisableFirstRunCustomize" -Type DWord -Value 1
+
+        # Set Photo Viewer association for bmp, gif, jpg, png and tif
+            If (!(Test-Path "HKCR:")) {
+                New-PSDrive -Name "HKCR" -PSProvider "Registry" -Root "HKEY_CLASSES_ROOT" | Out-Null}
+            ForEach ($type in @("Paint.Picture", "giffile", "jpegfile", "pngfile")) {
+            New-Item -Path $("HKCR:\$type\shell\open") -Force | Out-Null
+            New-Item -Path $("HKCR:\$type\shell\open\command") | Out-Null
+            Set-ItemProperty -Path $("HKCR:\$type\shell\open") -Name "MuiVerb" -Type ExpandString -Value "@%ProgramFiles%\Windows Photo Viewer\photoviewer.dll,-3043"
+            Set-ItemProperty -Path $("HKCR:\$type\shell\open\command") -Name "(Default)" -Type ExpandString -Value "%SystemRoot%\System32\rundll32.exe `"%ProgramFiles%\Windows Photo Viewer\PhotoViewer.dll`", ImageView_Fullscreen %1"}
+        
         # Removing printers
             If (!(Test-Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private")) {
                 New-Item -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private" -Force | Out-Null}
@@ -454,3 +477,7 @@
             $ethernetadaptername = (Get-NetAdapter | Where-Object {-not $_.Virtual -and $_.Status -eq 'up'}).Name
             Set-DnsClientServerAddress -InterfaceAlias $ethernetadaptername -ServerAddresses $newDNS; Start-Sleep -s 2
             ipconfig /flushdns; Start-Sleep -s 2
+
+    # Create restore point
+        Enable-ComputerRestore -Drive "C:\"
+        Checkpoint-Computer -Description "Windows just installed."

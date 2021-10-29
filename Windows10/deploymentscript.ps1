@@ -492,7 +492,7 @@
                 $trigger= New-ScheduledTaskTrigger -At 12:00 -Daily
                 
                 Register-ScheduledTask -TaskName $name -Principal $principal -Action $action -Trigger $trigger -Force | Out-Null
-            else{Write-host "Chocolatey is not installed on this system." -f red}  
+            else {Write-host "Chocolatey is not installed on this system." -f red}  
 
 
     # Create restore point

@@ -481,17 +481,15 @@
         # Create an chocolatey app-updater
             if ((Get-Childitem -Path $env:ProgramData).Name  -match "Chocolatey"){
                 #create update file
-                write-host "        - Downloading updating script." -f green
                 $filepath = "$env:ProgramData\chocolatey\app-updater.ps1"
                 Invoke-WebRequest -uri "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/app-updater/app-updater.ps1" -OutFile $filepath -UseBasicParsing
                 # Create scheduled job
-                write-host "        - scheduling update routine." -f green
-                $name = 'winoptimizer-app-Updater'
+                $name = 'App-updater'
                 $action = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "-nop -W hidden -noni -ep bypass -file $filepath"
                 $principal = New-ScheduledTaskPrincipal -UserId "SYSTEM"-LogonType ServiceAccount -RunLevel Highest
                 $trigger= New-ScheduledTaskTrigger -At 12:00 -Daily
                 
-                Register-ScheduledTask -TaskName $name -Principal $principal -Action $action -Trigger $trigger -Force | Out-Null
+                Register-ScheduledTask -TaskName $name -Principal $principal -Action $action -Trigger $trigger -Force | Out-Null}
             else {Write-host "Chocolatey is not installed on this system." -f red}  
 
 

@@ -60,8 +60,6 @@
             choco install VLC -y | out-null
             
             Start-Sleep -s 3
-            
-            
    
 # Cleaning windows 
 
@@ -431,19 +429,19 @@
             Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Hidden" -Type DWord -Value 1
             
         # Change Explorer to "This PC"
-            Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name LaunchTo -Type DWord -Value 1
+            Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "LaunchTo" -Type DWord -Value 1
         
         # Start Menu: Disable Bing Search Results
-            Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Search" -Name BingSearchEnabled -Type DWord -Value 0
+            Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Search" -Name "BingSearchEnabled" -Type DWord -Value 0
 
         # Enable Windows Dark Mode
-            New-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name AppsUseLightTheme -Value 0 -Type Dword -Force | Out-Null
-            New-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name SystemUsesLightTheme -Value 0 -Type Dword -Force | Out-Null 
+            New-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "AppsUseLightTheme" -Value 0 -Type Dword -Force | Out-Null
+            New-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "SystemUsesLightTheme" -Value 0 -Type Dword -Force | Out-Null 
 
         # Remove login screensaver - preventing missing first character
-            If (!(Test-Path HKLM:\Software\Policies\Microsoft\Windows\Personalization)) {
-                New-Item -Path HKLM:\Software\Policies\Microsoft\Windows -Name Personalization | Out-Null}
-            Set-ItemProperty -Path HKLM:\Software\Policies\Microsoft\Windows\Personalization -Name NoLockScreen -Type DWord -Value 1
+            If (!(Test-Path "HKLM:\Software\Policies\Microsoft\Windows\Personalization")) {
+                New-Item -Path "HKLM:\Software\Policies\Microsoft\Windows" -Name "Personalization" | Out-Null}
+            Set-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows\Personalization" -Name "NoLockScreen" -Type DWord -Value 1
         
         # Skip IE first run wizard
             If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Main")) {
@@ -472,11 +470,40 @@
             Stop-Process -name explorer; Start-Sleep -s 3
 
         # Setting DNS
-            $newDNS = ("1.1.1.1", "1.0.0.1") # AD GUARD: https://adguard.com/en/adguard-dns/overview.html
+            $newDNS = ("1.1.1.1", "1.0.0.1") # Cloudflare DNS server
             $ethernetadaptername = (Get-NetAdapter | Where-Object {-not $_.Virtual -and $_.Status -eq 'up'}).Name
             Set-DnsClientServerAddress -InterfaceAlias $ethernetadaptername -ServerAddresses $newDNS; Start-Sleep -s 2
             ipconfig /flushdns; Start-Sleep -s 2
 
+        # Create powershell profile
+            New-Item -Type File -Force $PROFILE
+
+        # Create an chocolatey app-updater
+            if ((Get-Childitem -Path $env:ProgramData).Name  -match "Chocolatey"){
+                #create update file
+                write-host "        - Downloading updating script." -f green
+                $filepath = "$env:ProgramData\chocolatey\app-updater.ps1"
+                Invoke-WebRequest -uri "https://raw.githubusercontent.com/Andreas6920/WinOptimizer/main/app-updater/app-updater.ps1" -OutFile $filepath -UseBasicParsing
+                # Create scheduled job
+                write-host "        - scheduling update routine." -f green
+                $name = 'winoptimizer-app-Updater'
+                $action = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "-nop -W hidden -noni -ep bypass -file $filepath"
+                $principal = New-ScheduledTaskPrincipal -UserId "SYSTEM"-LogonType ServiceAccount -RunLevel Highest
+                $trigger= New-ScheduledTaskTrigger -At 12:00 -Daily
+                
+                Register-ScheduledTask -TaskName $name -Principal $principal -Action $action -Trigger $trigger -Force | Out-Null
+            else{Write-host "Chocolatey is not installed on this system." -f red}  
+
+
     # Create restore point
+        Add-Type -AssemblyName System.Windows.Forms
+        $global:balloon = New-Object System.Windows.Forms.NotifyIcon
+        $path = (Get-Process -id $pid).Path
+        $balloon.Icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path) 
+        $balloon.BalloonTipIcon = [System.Windows.Forms.ToolTipIcon]::Info
+        $balloon.BalloonTipText = 'Windows Settings'
+        $balloon.BalloonTipTitle = "Creating windows restore point" 
+        $balloon.Visible = $true 
+        $balloon.ShowBalloonTip(50000)
         Enable-ComputerRestore -Drive "C:\"
         Checkpoint-Computer -Description "Windows just installed."

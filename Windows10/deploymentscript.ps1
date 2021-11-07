@@ -1,4 +1,5 @@
-## Need to be fixed
+## Need to be fixed list:
+#   Empty..
 
 
 # Install chocolatey

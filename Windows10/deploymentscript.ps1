@@ -349,45 +349,6 @@
                 foreach ($trackingservice in $trackingservices) {
                 if((Get-Service -Name $trackingservice | ? Starttype -ne Disabled)){
                 Get-Service | ? name -eq $trackingservice | Set-Service -StartupType Disabled}}        
-
-            # Adding entries to hosts file
-                Add-Type -AssemblyName System.Windows.Forms
-                $global:balloon = New-Object System.Windows.Forms.NotifyIcon
-                $path = (Get-Process -id $pid).Path
-                $balloon.Icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path) 
-                $balloon.BalloonTipIcon = [System.Windows.Forms.ToolTipIcon]::Info
-                $balloon.BalloonTipText = 'Windows Settings'
-                $balloon.BalloonTipTitle = "Blocking tracking domains.." 
-                $balloon.Visible = $true 
-                $balloon.ShowBalloonTip(50000)
-
-                Write-host "      BLOCKING - Tracking domains (This may take a while).." -f green
-                Start-Sleep -s 3
-                Write-Host "        - Backing up your hostsfile.." -f Yellow
-                
-                    ## Taking backup of current hosts file first
-                    $hostsfile = "$env:SystemRoot\System32\drivers\etc\hosts"
-                    $Takebackup = "$env:SystemRoot\System32\drivers\etc\hosts_backup"
-                    Copy-Item $hostsfile $Takebackup
-
-                Write-Host "        - Getting an updated list of microsoft tracking domains" -f Yellow
-                $domain = Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/crazy-max/WindowsSpyBlocker/master/data/hosts/spy.txt'  -UseBasicParsing
-                $domain = $domain.Content | Foreach-object { $_ -replace "\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}", "" } | Foreach-object { $_ -replace " ", "" }
-                $domain = $domain.Split("`n") -notlike "#*" -notmatch "spynet2.microsoft.com" -match "\w"
-
-                Write-Host "        - Blocking domains from tracking-list" -f Yellow
-                foreach ($domain_entry in $domain) {
-                $counter++
-                        Write-Progress -Activity 'Adding entries to host file..' -CurrentOperation $domain_entry -PercentComplete (($counter /$domain.count) * 100)
-                        Add-Content -Encoding UTF8  $hostsfile ("`t" + "0.0.0.0" + "`t`t" + "$domain_entry") -ErrorAction SilentlyContinue
-                        Start-Sleep -Milliseconds 200
-                }
-                Write-Progress -Completed -Activity "make progress bar dissapear"
-                ## flush DNS cache
-                Write-host "        - Flushing local DNS cache" -f Yellow
-                ipconfig /flushdns | Out-Null; Start-Sleep 2; nbtstat -R | Out-Null; Start-Sleep -s 2;
-                Stop-Process -name explorer; Start-Sleep -s 3
-
             
             # Blocking Microsoft Tracking IP's in the firewall
                 Add-Type -AssemblyName System.Windows.Forms

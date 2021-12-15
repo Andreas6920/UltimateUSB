@@ -82,7 +82,7 @@
         Start-Sleep 3
         
         # Delete layout file if it already exists
-            If (Test-Path $layoutFile) {    Remove-Item $layoutFile }   
+            If (Test-Path $layoutFile) { Remove-Item $layoutFile }   
 
         # Creates the blank layout file
             Write-host "        - Creates and applying a new blank start menu..." -f Yellow
@@ -95,15 +95,14 @@
             $keyPath = $basePath + "\Explorer" 
             IF (!(Test-Path -Path $keyPath)) {  New-Item -Path $basePath -Name "Explorer" | Out-Null }
             Set-ItemProperty -Path $keyPath -Name "LockedStartLayout" -Value 1
-            Set-ItemProperty -Path $keyPath -Name "StartLayoutFile" -Value $layoutFile
-                                                }
+            Set-ItemProperty -Path $keyPath -Name "StartLayoutFile" -Value $layoutFile }
 
         # Restart Explorer, open the start menu (necessary to load the new layout), and give it a few seconds to process
             Write-host "        - Restarting explorer..." -f yellow
             Stop-Process -name explorer -Force
             Start-Sleep -s 5
 
-        #Enable the ability to pin items again by disabling "LockedStartLayout"
+        # Enable the ability to pin items again by disabling "LockedStartLayout"
             foreach ($regAlias in $regAliases) {
                 $basePath = $regAlias + ":\Software\Policies\Microsoft\Windows"
                 $keyPath = $basePath + "\Explorer" 
@@ -385,7 +384,7 @@
                 New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Force | Out-Null}
             Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Type DWord -Value 0
 
-        #show hidden files
+        # Show hidden files
             If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced")) {
                 New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Force | Out-Null}
             Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Hidden" -Type DWord -Value 1

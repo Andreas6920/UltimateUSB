@@ -11,6 +11,7 @@ Comming up:
     - Download/Install Office 365 / 2016 Pro
 - Deploy Autounattend
     - DISM
+    - https://docs.microsoft.com/en-us/windows-hardware/manufacture/desktop/dism-unattended-servicing-command-line-options?view=windows-11
 - Install ventoy
     - Ventoy config
     - Ventoy icons

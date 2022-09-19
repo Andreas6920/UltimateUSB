@@ -3,14 +3,21 @@
 
 
 # Install chocolatey
-    Set-ExecutionPolicy Bypass -Scope Process -Force;
-    New-Item -Type File -Force $PROFILE
-    (New-Object System.Net.WebClient).DownloadFile("https://chocolatey.org/install.ps1","$env:TMP/choco-install.ps1")
-    # Executing installation file.
-    cd $env:TMP; .\choco-install.ps1
-    write-host "choco installed."
+    Add-Type -AssemblyName System.Windows.Forms
+    $global:balloon = New-Object System.Windows.Forms.NotifyIcon
+    $path = (Get-Process -id $pid).Path
+    $balloon.Icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path) 
+    $balloon.BalloonTipIcon = [System.Windows.Forms.ToolTipIcon]::Info
+    $balloon.BalloonTipText = 'Windows Settings'
+    $balloon.BalloonTipTitle = "Installing chocolatey" 
+    $balloon.Visible = $true 
+    $balloon.ShowBalloonTip(50000)
+
+    Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
     
     Start-Sleep -s 3
+
+# Install desktop applications
 
         # installing Google Chrome 
             Add-Type -AssemblyName System.Windows.Forms
@@ -18,33 +25,34 @@
             $path = (Get-Process -id $pid).Path
             $balloon.Icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path) 
             $balloon.BalloonTipIcon = [System.Windows.Forms.ToolTipIcon]::Info
-            $balloon.BalloonTipText = 'Google Chrome Browser'
+            $balloon.BalloonTipText = 'Google Chrome'
             $balloon.BalloonTipTitle = "Installing Chrome..." 
             $balloon.Visible = $true 
             $balloon.ShowBalloonTip(50000)
+
             choco install googlechrome -y --ignore-checksums --force | out-null
-            # BUG FIX: Transparent dropdown menu
-            If (!(Test-Path "HKLM:\SOFTWARE\Policies\Google\Chrome\")) {
+                # BUG FIX: Transparent dropdown menu
+                If (!(Test-Path "HKLM:\SOFTWARE\Policies\Google\Chrome\")) {
                 New-Item -Path "HKLM:\SOFTWARE\Policies\Google\Chrome\" -Force | Out-Null}
-            Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Google\Chrome\" -Name "HardwareAccelerationModeEnabled" -Type DWord -Value 0
-            # Add Ublock Origin Adblocker Extension
-            (New-Object System.Net.WebClient).DownloadFile("https://bitbucket.org/svalding/psbrowserextensions/raw/88b200bad8845acbb91d19fdc96cf9dee0303253/New-ChromeExtension.ps1","$env:TMP/chrome-extensions.ps1")
-            Import-Module "$env:TMP/chrome-extensions.ps1"
-            New-ChromeExtension -ExtensionID 'cjpalhdlnbpafiamejdnhcphjbkeiagm' -Hive Machine
+                Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Google\Chrome\" -Name "HardwareAccelerationModeEnabled" -Type DWord -Value 0
+                # Add Ublock Origin Adblocker Extension
+                (New-Object System.Net.WebClient).DownloadFile("https://bitbucket.org/svalding/psbrowserextensions/raw/88b200bad8845acbb91d19fdc96cf9dee0303253/New-ChromeExtension.ps1","$env:TMP/chrome-extensions.ps1")
+                Import-Module "$env:TMP/chrome-extensions.ps1"
+                New-ChromeExtension -ExtensionID 'cjpalhdlnbpafiamejdnhcphjbkeiagm' -Hive Machine
             
             Start-Sleep -s 3
             
-        # Installing 7-Zip
+        # Installing Adobe Acrobat Reader
             Add-Type -AssemblyName System.Windows.Forms
             $global:balloon = New-Object System.Windows.Forms.NotifyIcon
             $path = (Get-Process -id $pid).Path
             $balloon.Icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path) 
             $balloon.BalloonTipIcon = [System.Windows.Forms.ToolTipIcon]::Info
-            $balloon.BalloonTipText = '7-zip'
-            $balloon.BalloonTipTitle = "Installing 7-zip..." 
+            $balloon.BalloonTipText = 'Adobe Acrobat Reader'
+            $balloon.BalloonTipTitle = "Installing Adobe Reader..." 
             $balloon.Visible = $true 
             $balloon.ShowBalloonTip(50000)
-            choco install 7Zip -y | out-null
+            choco install adobereader -y
             
             Start-Sleep -s 3
             
@@ -58,29 +66,44 @@
             $balloon.BalloonTipTitle = "Installing VLC..." 
             $balloon.Visible = $true 
             $balloon.ShowBalloonTip(50000)
-            choco install VLC -y | out-null
+            choco install VLC -y
             
             Start-Sleep -s 3
+
+        # Installing 7-Zip
+            Add-Type -AssemblyName System.Windows.Forms
+            $global:balloon = New-Object System.Windows.Forms.NotifyIcon
+            $path = (Get-Process -id $pid).Path
+            $balloon.Icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path) 
+            $balloon.BalloonTipIcon = [System.Windows.Forms.ToolTipIcon]::Info
+            $balloon.BalloonTipText = '7-zip'
+            $balloon.BalloonTipTitle = "Installing 7-zip..." 
+            $balloon.Visible = $true 
+            $balloon.ShowBalloonTip(50000)
+            choco install 7Zip -y
+            
+            Start-Sleep -s 3
+            
    
 # Cleaning windows 
 
     # Unpin start menu
 
-        Add-Type -AssemblyName System.Windows.Forms
-        $global:balloon = New-Object System.Windows.Forms.NotifyIcon
-        $path = (Get-Process -id $pid).Path
-        $balloon.Icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path) 
-        $balloon.BalloonTipIcon = [System.Windows.Forms.ToolTipIcon]::Info
-        $balloon.BalloonTipText = 'Windows Settings'
-        $balloon.BalloonTipTitle = "Unpinning apps.." 
-        $balloon.Visible = $true 
-        $balloon.ShowBalloonTip(50000)
+    Add-Type -AssemblyName System.Windows.Forms
+    $global:balloon = New-Object System.Windows.Forms.NotifyIcon
+    $path = (Get-Process -id $pid).Path
+    $balloon.Icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path) 
+    $balloon.BalloonTipIcon = [System.Windows.Forms.ToolTipIcon]::Info
+    $balloon.BalloonTipText = 'Windows Settings'
+    $balloon.BalloonTipTitle = "Unpinning apps.." 
+    $balloon.Visible = $true 
+    $balloon.ShowBalloonTip(50000)
 
-        $layoutFile = "$env:SystemRoot\StartMenuLayout.xml"
-        $layoutFile_new = (Invoke-WebRequest -uri "https://raw.githubusercontent.com/Andreas6920/deploy-project/main/resources/StartMenyLayout.xml" -UseBasicParsing).content    
-        
-        Start-Sleep 3
-        
+    $layoutFile = "$env:SystemRoot\StartMenuLayout.xml"
+    $layoutFile_new = (Invoke-WebRequest -uri "https://raw.githubusercontent.com/Andreas6920/deploy-project/main/resources/StartMenyLayout.xml" -UseBasicParsing).content    
+    
+    Start-Sleep 3
+    
         # Delete layout file if it already exists
             If (Test-Path $layoutFile) { Remove-Item $layoutFile }   
 
@@ -106,14 +129,15 @@
             foreach ($regAlias in $regAliases) {
                 $basePath = $regAlias + ":\Software\Policies\Microsoft\Windows"
                 $keyPath = $basePath + "\Explorer" 
-                Set-ItemProperty -Path $keyPath -Name "LockedStartLayout" -Value 0
-            }
+                Set-ItemProperty -Path $keyPath -Name "LockedStartLayout" -Value 0}
             Stop-Process -name explorer
             Import-StartLayout -LayoutPath $layoutFile -MountPath $env:SystemDrive\
             Remove-Item $layoutFile
 
+            Start-Sleep -S 3;
 
     # unpin Taskbar
+
         Add-Type -AssemblyName System.Windows.Forms
         $global:balloon = New-Object System.Windows.Forms.NotifyIcon
         $path = (Get-Process -id $pid).Path
@@ -137,6 +161,7 @@
         Start-Sleep -s 1
 
     # Removing Microsoft Bloat
+
         Add-Type -AssemblyName System.Windows.Forms
         $global:balloon = New-Object System.Windows.Forms.NotifyIcon
         $path = (Get-Process -id $pid).Path
@@ -151,95 +176,202 @@
         Start-Sleep 3
         $Bloatware = @(
 
-            "Microsoft.ZuneMusic"
-            "Microsoft.MicrosoftSolitaireCollection"
-            "Microsoft.MicrosoftOfficeHub"
-            "Microsoft.Microsoft3DViewer"
-            "Microsoft.MicrosoftStickyNotes"
-            "Microsoft.Getstarted"
-            "Microsoft.Office.OneNote"
-            "Microsoft.People"
-            "Microsoft.3DBuilder"
-            "*officehub*"
-            "*feedback*"
-            "Microsoft.Music.Preview"
-            "Microsoft.WindowsMaps"
-            "*windowscommunicationsapps*"
-            "*autodesksketch*"
-            "*plex*"
-            "*print3d*"
-            "*Paint3D*"
-            "*Mixed*"
-            "*oneconnect*"
-                                                
-            # Xbox Bloat
-            "Microsoft.XboxGameCallableUI"
-            "Microsoft.XboxSpeechToTextOverlay"
-            "Microsoft.XboxGameOverlay"
-            "Microsoft.XboxIdentityProvider"
-            "Microsoft.XboxGameCallableUI"
-            "Microsoft.XboxGamingOverlay"
-            "Microsoft.XboxApp"
-            "Microsoft.Xbox.TCUI"
-                                                
-            # Bing Bloat
-            "Microsoft.BingTravel"
-            "Microsoft.BingHealthAndFitness"
-            "Microsoft.BingFoodAndDrink"
-            "Microsoft.BingWeather"
-            "Microsoft.BingNews"
-            "Microsoft.BingFinance"
-            "Microsoft.BingSports"
-            "Microsoft.Bing*"
-            "*Bing*"
+        ## Microsoft Bloat ##
+        "*autodesksketch*"
+        "*oneconnect*"
+        "*plex*"
+        "*print3d*"
+        "Microsoft.3DBuilder"
+        "Microsoft.Getstarted"
+        "Microsoft.Microsoft3DViewer"
+        "Microsoft.MicrosoftOfficeHub"
+        "Microsoft.Office.OneNote"
+        "Microsoft.MicrosoftSolitaireCollection"
+        "Microsoft.MicrosoftStickyNotes"
+        "Microsoft.MixedReality.Portal"
+        "Microsoft.Music.Preview"
+        "Microsoft.People"
+        "Microsoft.PeopleExperienceHost"
+        "Microsoft.WindowsFeedbackHub"
+        "Microsoft.WindowsMaps"
+        "Microsoft.WindowsMaps"
+        "Microsoft.ZuneMusic"
+        "Microsoft.ZuneVideo"
+        "Microsoft.windowscommunicationsapps"
+        "Microsoft.Wallet"
+        "Microsoft.GetHelp"
+        "Microsoft.Getstarted"
+        "CBSPreview"
+                                            
+        ## Xbox Bloat ##
+        "Microsoft.Xbox.TCUI"
+        "Microsoft.XboxApp"
+        "Microsoft.XboxGameCallableUI"
+        "Microsoft.XboxGameOverlay"
+        "Microsoft.XboxGamingOverlay"
+        "Microsoft.XboxIdentityProvider"
+        "Microsoft.XboxSpeechToTextOverlay"
+                                            
+        ## Bing Bloat ##
+        "*Bing*"
+        "Microsoft.Bing*"
+        "Microsoft.BingFinance"
+        "Microsoft.BingFoodAndDrink"
+        "Microsoft.BingHealthAndFitness"
+        "Microsoft.BingNews"
+        "Microsoft.BingSports"
+        "Microsoft.BingTravel"
+        "Microsoft.BingWeather"
 
-            # Games
-            "*disney*"
-            "*candycrush*"
-            "*minecraft*"
-            "*bubblewitch*"
-            "*empires*"
-            "*Royal Revolt*"
-                                
-            # Other crap
-            "*Skype*"
-            "*Facebook*"
-            "*Twitter*"
-            "*Spotify*"
-            "*EclipseManager*"
-            "*ActiproSoftwareLLC*"
-            "*AdobeSystemsIncorporated.AdobePhotoshopExpress*"
-            "*Duolingo-LearnLanguagesforFree*"
-            "*PandoraMediaInc*"
-            "*Wunderlist*"
-            "*Flipboard*"
+        ## Games ##
+        "*Bubblewitch*"
+        "*Candycrush*"
+        "*Disney*"
+        "*Empires*"
+        "*Minecraft*"
+        "*Royal revolt*"
+                            
+        ## Other crap ##
+        "*Disney*"
+        "*ActiproSoftwareLLC*"
+        "*AdobeSystemsIncorporated.AdobePhotoshopExpress*"
+        "*Duolingo-LearnLanguagesforFree*"
+        "*EclipseManager*"
+        "*Facebook*"
+        "*Flipboard*"
+        "*PandoraMediaInc*"
+        "*Skype*"
+        "*Spotify*"
+        "*Twitter*"
+        "*Wunderlist*"
         )
         
         foreach ($Bloat in $Bloatware) {
-            $bloat_output = Get-AppxPackage | Where-Object Name -Like $Bloat | Select -Property Name; #Write-Host "        - Removing: $bloat_output"
-            if ($bloat_output -ne $null) { Write-host "        - Removing: " -f yellow -nonewline; ; write-host "$bloat_output".Split(".")[1].Split("}")[0] -f yellow }
             Get-AppxPackage -Name $Bloat | Remove-AppxPackage -ErrorAction SilentlyContinue | Out-Null
             Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $Bloat | Remove-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue | Out-Null}
-        
-        Start-Sleep -s 3   
-        $Bloatschedules = @(
-                "XblGameSaveTaskLogon"
-                "XblGameSaveTask"
-                "Consolidator"
-                "UsbCeip"
-                "DmClient"
-                "DmClientOnScenarioDownload"
-                )
-            foreach ($BloatSchedule in $BloatSchedules) {
-            if ((Get-ScheduledTask | ? state -ne Disabled | ? TaskName -like $BloatSchedule)){
-            Get-ScheduledTask | ? Taskname -eq $BloatSchedule | Disable-ScheduledTask | Out-Null}}   
 
-    # Remove Windows pre-installed bloat printers (Fax, PDF, OneNote) These are almost never used.
+    # Disabling services
+
+        Add-Type -AssemblyName System.Windows.Forms
+        $global:balloon = New-Object System.Windows.Forms.NotifyIcon
+        $path = (Get-Process -id $pid).Path
+        $balloon.Icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path) 
+        $balloon.BalloonTipIcon = [System.Windows.Forms.ToolTipIcon]::Info
+        $balloon.BalloonTipText = 'Windows Settings'
+        $balloon.BalloonTipTitle = "Cleaning service.." 
+        $balloon.Visible = $true 
+        $balloon.ShowBalloonTip(50000)
+    
+        Start-Sleep -s 3
+        $services = @(
+            "diagnosticshub.standardcollector.service" # Microsoft (R) Diagnostics Hub Standard Collector Service
+            "DiagTrack"                                # Diagnostics Tracking Service
+            "dmwappushservice"                         # WAP Push Message Routing Service (see known issues)
+            "lfsvc"                                    # Geolocation Service
+            "MapsBroker"                               # Downloaded Maps Manager
+            "ndu"                                      # Windows Network Data Usage Monitor
+            "NetTcpPortSharing"                        # Net.Tcp Port Sharing Service
+            "RemoteAccess"                             # Routing and Remote Access
+            "RemoteRegistry"                           # Remote Registry
+            "SharedAccess"                             # Internet Connection Sharing (ICS)
+            "TrkWks"                                   # Distributed Link Tracking Client
+            "WbioSrvc"                                 # Windows Biometric Service (required for Fingerprint reader / facial detection)
+            "WMPNetworkSvc"                            # Windows Media Player Network Sharing Service
+            "XblAuthManager"                           # Xbox Live Auth Manager
+            "XblGameSave"                              # Xbox Live Game Save Service
+            "XboxNetApiSvc"                            # Xbox Live Networking Service
+            )
+
+        foreach ($service in $services) {
+        if((Get-Service -Name $service | Where-Object Starttype -ne Disabled)){
+        Get-Service | Where-Object name -eq $service | Set-Service -StartupType Disabled}}
+        Start-Sleep -S 3;
+
+    # Clean Task Scheduler
+
+        Add-Type -AssemblyName System.Windows.Forms
+        $global:balloon = New-Object System.Windows.Forms.NotifyIcon
+        $path = (Get-Process -id $pid).Path
+        $balloon.Icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path) 
+        $balloon.BalloonTipIcon = [System.Windows.Forms.ToolTipIcon]::Info
+        $balloon.BalloonTipText = 'Windows Settings'
+        $balloon.BalloonTipTitle = "Cleaning task scheduler.." 
+        $balloon.Visible = $true 
+        $balloon.ShowBalloonTip(50000)
+    
+        Start-Sleep -s 3
+        $Bloatschedules = @(
+            "AitAgent" 
+            "AnalyzeSystem" 
+            "Automatic App Update" 
+            "BthSQM" 
+            "Consolidator"
+            "Consolidator" 
+            "CreateObjectTask" 
+            "Diagnostics" 
+            "DmClient"
+            "DmClientOnScenarioDownload"
+            "DsSvcCleanup" 
+            "EnableLicenseAcquisition" 
+            "FamilySafetyMonitor" 
+            "FamilySafetyMonitorToastTask" 
+            "FamilySafetyRefresh" 
+            "FamilySafetyRefreshTask" 
+            "FamilySafetyUpload" 
+            "File History (maintenance mode)" 
+            "GatherNetworkInfo" 
+            "KernelCeipTask" 
+            "License Validation" 
+            "LicenseAcquisition" 
+            "LoginCheck" 
+            "Microsoft Compatibility Appraiser" 
+            "Microsoft-Windows-DiskDiagnosticDataCollector" 
+            "ProgramDataUpdater" 
+            "Proxy" 
+            "QueueReporting" 
+            "RecommendedTroubleshootingScanner" 
+            "Registration" 
+            "Scheduled" 
+            "SmartScreenSpecific" 
+            "Sqm-Tasks" 
+            "StartupAppTask" 
+            "TempSignedLicenseExchange" 
+            "Uploader" 
+            "UsbCeip"
+            "UsbCeip" 
+            "WinSAT" 
+            "XblGameSaveTask")
+
+            foreach ($BloatSchedule in $BloatSchedules) {
+            if ((Get-ScheduledTask | Where-Object state -ne Disabled | Where-Object TaskName -like $BloatSchedule)){
+            Get-ScheduledTask | Where-Object Taskname -eq $BloatSchedule | Disable-ScheduledTask | Out-Null}}
+            Start-Sleep -S 3;
+
+    # Cleaning printers
+        Add-Type -AssemblyName System.Windows.Forms
+        $global:balloon = New-Object System.Windows.Forms.NotifyIcon
+        $path = (Get-Process -id $pid).Path
+        $balloon.Icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path) 
+        $balloon.BalloonTipIcon = [System.Windows.Forms.ToolTipIcon]::Info
+        $balloon.BalloonTipText = 'Windows Settings'
+        $balloon.BalloonTipTitle = "Cleaning printers.." 
+        $balloon.Visible = $true 
+        $balloon.ShowBalloonTip(50000)
+    
+        # Disabling auto-install printers from network
         If (!(Test-Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private")) {
-        New-Item -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private" -Force | Out-Null
-        }
+        New-Item -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private" -Force | Out-Null}
         Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private" -Name "AutoSetup" -Type DWord -Value 0
-        Get-Printer | ? Name -cMatch "OneNote for Windows 10|Microsoft XPS Document Writer|Microsoft Print to PDF|Fax" | Remove-Printer 
+        
+        # Cleaning spooler
+        Stop-Service "Spooler" | out-null; sleep -s 3
+        Remove-Item "$env:SystemRoot\System32\spool\PRINTERS\*.*" -Force | Out-Null
+        Start-Service "Spooler"
+
+        # Removing bloat printers
+        $Bloatprinters = "Fax","OneNote for Windows 10","Microsoft XPS Document Writer", "Microsoft Print to PDF" 
+        $Bloatprinters | % {if(Get-Printer | Where-Object Name -cMatch $_){Write-Host "`t`t`t- Uninstalling: $_" -f Yellow; Remove-Printer $_; Start-Sleep -s 2}}
+        Start-Sleep -S 3;
 
     # Privacy settings
         Add-Type -AssemblyName System.Windows.Forms
@@ -252,130 +384,135 @@
         $balloon.Visible = $true 
         $balloon.ShowBalloonTip(50000)
 
-        # General
-            # Disable Advertising ID
-            Write-host "        - Disabling advertising ID." -f yellow
+        # Disable Advertising ID
             If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo")) {
                 New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Force | Out-Null}
             Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Name "Enabled" -Type DWord -Value 0
             Start-Sleep -s 2
-
-            # Disable let websites provide locally relevant content by accessing language list
-            Write-host "        - Disabling location tracking." -f yellow
+    
+        # Disable let websites provide locally relevant content by accessing language list
             If (!(Test-Path "HKCU:\Control Panel\International\User Profile")) {
                 New-Item -Path "HKCU:\Control Panel\International\User Profile" -Force | Out-Null}
             Set-ItemProperty -Path  "HKCU:\Control Panel\International\User Profile" -Name "HttpAcceptLanguageOptOut"  -Value 1
             Start-Sleep -s 2
-
-            # Disable Let Windows track app launches to improve Stat and search results
-            If (!(Test-Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced")) {
-                New-Item -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Force | Out-Null}
-            Set-ItemProperty -Path  "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Start_TrackProgs"  -Value 0    
-
-            # Disable Show me suggested content in the Settings app
-            Write-host "        - Disabling personalized content suggestions." -f Yellow
+    
+        # Disable Show me suggested content in the Settings app
             If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager")) {
                 New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Force | Out-Null}
             Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-338393Enabled" -Type DWord -Value 0
             Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-353694Enabled" -Type DWord -Value 0
             Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-353696Enabled" -Type DWord -Value 0
             Start-Sleep -s 2
-        
-        # Speech
-            # Disable Online Speech Recognition
-            Write-host "        - Disabling Online Speech Recognition." -f yellow
+    
+        # Remove Cortana
+            Get-AppxPackage -name *Microsoft.549981C3F5F10* | Remove-AppxPackage
+            If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced")) {
+                New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Force | Out-Null}
+            Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowCortanaButton" -Type DWord -Value 0
+            Stop-Process -name explorer
+            Start-Sleep -s 5
+
+        # Disable Online Speech Recognition
             If (!(Test-Path "HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy")) {
                 New-Item -Path "HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy" -Force | Out-Null}
             Set-ItemProperty -Path "HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy" -Name "HasAccepted" -Type DWord -Value 0
             Start-Sleep -s 2
-
-        # Inking & Typing Personalization
-            # Use typing history patterns to create personal dictionary
-            If (!(Test-Path "HKCU:\Software\Microsoft\InputPersonalization")) {
-                New-Item -Path "HKCU:\Software\Microsoft\InputPersonalization" -Force | Out-Null}
-            Set-ItemProperty -Path  "HKCU:\Software\Microsoft\InputPersonalization" -Name "RestrictImplicitTextCollection"  -Value 1
-            Set-ItemProperty -Path  "HKCU:\Software\Microsoft\InputPersonalization" -Name "RestrictImplicitInkCollection"  -Value 1
+    
+        # Hiding personal information from lock screen
+            If (!(Test-Path "HKLM:\Software\Policies\Microsoft\Windows\System")) {
+                New-Item -Path "HKLM:\Software\Policies\Microsoft\Windows\System" -Force | Out-Null}
+            Set-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows\System" -Name "DontDisplayLockedUserID" -Type DWord -Value 0
+            Set-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows\System" -Name "DontDisplayLastUsername" -Type DWord -Value 0
             Start-Sleep -s 2
-        
-        # Diagnostics & feedback
-                
-            # Diagnostic data collection
+    
+        # Disable diagnostic data collection
             If (!(Test-Path "HKLM:\Software\Policies\Microsoft\Windows\DataCollection")) {
                 New-Item -Path "HKLM:\Software\Policies\Microsoft\Windows\DataCollection" -Force | Out-Null}
             Set-ItemProperty -Path  "HKLM:\Software\Policies\Microsoft\Windows\DataCollection" -Name "AllowTelemetry"  -Value 0
             Start-Sleep -s 2
-            
-            
-            # Tailored expirence
-            If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy")) {   
-                New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy" -Force | Out-Null}
-                Set-ItemProperty -Path  "HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy" -Name "TailoredExperiencesWithDiagnosticDataEnabled"  -Value 0
-                Start-Sleep -s 2
-                
-        # Activity history
-            
-            # Disable "Store my activity on this device"
-            If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System")) {   
-                New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Force | Out-Null}
-            Set-ItemProperty -Path  "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "PublishUserActivities"  -Value 0
-            Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "EnableActivityFeed" -Type DWord -Value 0
-            Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "UploadUserActivities" -Type DWord -Value 0
+    
+        # Disable App Launch Tracking
+            If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced")) {
+                New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Force | Out-Null}
+            Set-ItemProperty -Path "HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy" -Name "Start_TrackProgs" -Type DWord -Value 0
             Start-Sleep -s 2
 
-                    
+        # Disable "tailored expirence"
+            If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy")) {   
+                New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy" -Force | Out-Null}
+            Set-ItemProperty -Path  "HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy" -Name "TailoredExperiencesWithDiagnosticDataEnabled"  -Value 0
+            Start-Sleep -s 2
+    
+    # Security settings
+        Add-Type -AssemblyName System.Windows.Forms
+        $global:balloon = New-Object System.Windows.Forms.NotifyIcon
+        $path = (Get-Process -id $pid).Path
+        $balloon.Icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path) 
+        $balloon.BalloonTipIcon = [System.Windows.Forms.ToolTipIcon]::Info
+        $balloon.BalloonTipText = 'Windows Settings'
+        $balloon.BalloonTipTitle = "Improving security settings.." 
+        $balloon.Visible = $true 
+        $balloon.ShowBalloonTip(50000)           
             
-        #Other
-            
-            # Hiding personal information from lockscreen
-                If (!(Test-Path "HKLM:\Software\Policies\Microsoft\Windows\System")) {
-                    New-Item -Path "HKLM:\Software\Policies\Microsoft\Windows\System" -Force | Out-Null}
-                Set-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows\System" -Name "DontDisplayLockedUserID" -Type DWord -Value 0
-                Set-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows\System" -Name "DontDisplayLastUsername" -Type DWord -Value 0
-                Start-Sleep -s 2
+        # Disable automatic setup of network connected devices.
+            If (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private")) {
+                New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private" -Force | Out-Null}
+            Set-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private" -Name "AutoSetup" -Type DWord -Value 0 -Force 
+            Start-Sleep -s 2
         
-            # Disabling services
-                Write-host "      BLOCKING - Tracking startup services" -f green
-                $trackingservices = @(
-                "diagnosticshub.standardcollector.service" # Microsoft (R) Diagnostics Hub Standard Collector Service
-                "DiagTrack"                                # Diagnostics Tracking Service
-                "dmwappushservice"                         # WAP Push Message Routing Service (see known issues)
-                "lfsvc"                                    # Geolocation Service
-                "TrkWks"                                   # Distributed Link Tracking Client
-                "XblAuthManager"                           # Xbox Live Auth Manager
-                "XblGameSave"                              # Xbox Live Game Save Service
-                "XboxNetApiSvc"                            # Xbox Live Networking Service
-                                    )
+        # Disable sharing of PC and printers
+            Get-NetConnectionProfile | ForEach-Object {Set-NetConnectionProfile -Name $_.Name -NetworkCategory Public -ErrorAction SilentlyContinue | Out-Null}    
+            get-printer | Where-Object shared -eq True | ForEach-Object {Set-Printer -Name $_.Name -Shared $False -ErrorAction SilentlyContinue | Out-Null}
+            netsh advfirewall firewall set rule group="File and Printer Sharing" new enable=No -ErrorAction SilentlyContinue | Out-Null
+            Start-Sleep -s 2
 
-                foreach ($trackingservice in $trackingservices) {
-                if((Get-Service -Name $trackingservice | ? Starttype -ne Disabled)){
-                Get-Service | ? name -eq $trackingservice | Set-Service -StartupType Disabled}}        
-            
-            # Blocking Microsoft Tracking IP's in the firewall
-                Add-Type -AssemblyName System.Windows.Forms
-                $global:balloon = New-Object System.Windows.Forms.NotifyIcon
-                $path = (Get-Process -id $pid).Path
-                $balloon.Icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path) 
-                $balloon.BalloonTipIcon = [System.Windows.Forms.ToolTipIcon]::Info
-                $balloon.BalloonTipText = 'Windows Settings'
-                $balloon.BalloonTipTitle = "Blocking tracking IP's.." 
-                $balloon.Visible = $true 
-                $balloon.ShowBalloonTip(50000)
+        # Disable LLMNR    
+            #https://www.blackhillsinfosec.com/how-to-disable-llmnr-why-you-want-to/
+            New-Item -Path "HKLM:\Software\policies\Microsoft\Windows NT\" -Name "DNSClient" -ea SilentlyContinue | Out-Null
+            Set-ItemProperty -Path "HKLM:\Software\policies\Microsoft\Windows NT\DNSClient" -Name "EnableMulticast" -Type "DWORD" -Value 0 -Force -ea SilentlyContinue | Out-Null
+            Start-Sleep -s 2
 
-                Write-host "      BLOCKING - Tracking IP's" -f green
-                Write-Host "        - Getting updated lists of Microsoft's trackin IP's" -f Yellow
-                $blockip = Invoke-WebRequest -Uri https://raw.githubusercontent.com/crazy-max/WindowsSpyBlocker/master/data/firewall/spy.txt  -UseBasicParsing
-                $blockip = $blockip.Content | Foreach-object { $_ -replace "0.0.0.0 ", "" } | Out-String
-                $blockip = $blockip.Split("`n") -notlike "#*" -match "\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"
-                Clear-Variable -Name counter
-                Write-Host "        - Configuring blocking rules in your firewall.." -f Yellow
-                foreach ($ip_entry in $blockip) {
-                $counter++
-                Write-Progress -Activity 'Configuring firewall rules..' -CurrentOperation $ip_entry -PercentComplete (($counter /$blockip.count) * 100)
-                netsh advfirewall firewall add rule name="Block Microsoft Tracking IP: $ip_entry" dir=out action=block remoteip=$ip_entry enable=yes | Out-Null}
-                Write-Progress -Completed -Activity "make progress bar dissapear"
-                Write-Host "        - Firewall configuration complete." -f Yellow
-                Start-Sleep -s 3
+        # Bad Neighbor - CVE-2020-16898 (Disable IPv6 DNS)  
+            # https://blog.rapid7.com/2020/10/14/there-goes-the-neighborhood-dealing-with-cve-2020-16898-a-k-a-bad-neighbor/
+            # Disable DHCPv6  + routerDiscovery
+            Set-NetIPInterface -AddressFamily IPv6 -InterfaceIndex $(Get-NetIPInterface -AddressFamily IPv6 | Select-Object -ExpandProperty InterfaceIndex) -RouterDiscovery Disabled -Dhcp Disabled
+            # Prefer IPv4 over IPv6 (IPv6 is prefered by default)
+            If (!(Test-Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip6\Parameters")) {
+            New-Item -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip6\Parameters" -Force | Out-Null}
+            Set-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip6\Parameters" -Name "DisabledComponents" -Type DWord -Value 0x20 -Force
+            Start-Sleep -s 2
+
+        # Disabe SMB Compression - CVE-2020-0796    
+            # https://msrc.microsoft.com/update-guide/en-US/vulnerability/CVE-2020-0796
+            Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" DisableCompression -Type DWORD -Value 1 -Force -ea SilentlyContinue | Out-Null
+            Start-Sleep -s 2
+
+        # Disable SMB v1    
+            # https://docs.microsoft.com/en-us/windows-server/storage/file-server/troubleshoot/detect-enable-and-disable-smbv1-v2-v3
+            start-job -Name "Disable SMB1" -ScriptBlock {
+            Disable-WindowsOptionalFeature -Online -FeatureName smb1protocol -NoRestart -WarningAction:SilentlyContinue | Out-Null
+            Set-SmbServerConfiguration -EnableSMB1Protocol $false -Force -ea SilentlyContinue | Out-Null
+            Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" SMB1 -Type DWORD -Value 0 –Force} | Out-Null
+            Start-Sleep -s 2
+
+        # Disable SMB v2    
+            # https://docs.microsoft.com/en-us/windows-server/storage/file-server/troubleshoot/detect-enable-and-disable-smbv1-v2-v3
+            Set-SmbServerConfiguration -EnableSMB2Protocol $false -Force -ea SilentlyContinue | Out-Null
+            Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" SMB2 -Type DWORD -Value 0 –Force
+            Start-Sleep -s 2
+
+        # Enable SMB Encryption    
+            # https://docs.microsoft.com/en-us/windows-server/storage/file-server/smb-security
+            Set-SmbServerConfiguration –EncryptData $true -Force -ea SilentlyContinue | Out-Null
+            Set-SmbServerConfiguration –RejectUnencryptedAccess $false -Force -ea SilentlyContinue | Out-Null
+            Start-Sleep -s 2
             
+        # Spectre Meldown - CVE-2017-5754    
+            # https://support.microsoft.com/en-us/help/4073119/protect-against-speculative-execution-side-channel-vulnerabilities-in
+            Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" -Name FeatureSettingsOverrideMask -Type DWORD -Value 3 -Force -ea SilentlyContinue | Out-Null
+            Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Virtualization" -Name MinVmVersionForCpuBasedMitigations -Type String -Value "1.0" -Force -ea SilentlyContinue | Out-Null
+            Start-Sleep -s 2
+           
         
     # Other beneficial settings
     
@@ -383,22 +520,13 @@
             If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced")) {
                 New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Force | Out-Null}
             Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Type DWord -Value 0
-
-        # Show hidden files
-            If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced")) {
-                New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Force | Out-Null}
-            Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Hidden" -Type DWord -Value 1
             
         # Change Explorer to "This PC"
             Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "LaunchTo" -Type DWord -Value 1
         
         # Start Menu: Disable Bing Search Results
             Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Search" -Name "BingSearchEnabled" -Type DWord -Value 0
-
-        # Enable Windows Dark Mode
-            New-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "AppsUseLightTheme" -Value 0 -Type Dword -Force | Out-Null
-            New-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "SystemUsesLightTheme" -Value 0 -Type Dword -Force | Out-Null 
-
+        
         # Remove login screensaver - preventing missing first character
             If (!(Test-Path "HKLM:\Software\Policies\Microsoft\Windows\Personalization")) {
                 New-Item -Path "HKLM:\Software\Policies\Microsoft\Windows" -Name "Personalization" | Out-Null}
@@ -418,12 +546,6 @@
             Set-ItemProperty -Path $("HKCR:\$type\shell\open") -Name "MuiVerb" -Type ExpandString -Value "@%ProgramFiles%\Windows Photo Viewer\photoviewer.dll,-3043"
             Set-ItemProperty -Path $("HKCR:\$type\shell\open\command") -Name "(Default)" -Type ExpandString -Value "%SystemRoot%\System32\rundll32.exe `"%ProgramFiles%\Windows Photo Viewer\PhotoViewer.dll`", ImageView_Fullscreen %1"}
         
-        # Removing printers
-            If (!(Test-Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private")) {
-                New-Item -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private" -Force | Out-Null}
-            Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private" -Name "AutoSetup" -Type DWord -Value 0
-            Get-Printer | Where-Object Name -Like * | Remove-Printer -ErrorAction SilentlyContinue
-        
         # Show seconds in taskbar
             If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced")) {
                 New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" | Out-Null}
@@ -435,9 +557,6 @@
             $ethernetadaptername = (Get-NetAdapter | Where-Object {-not $_.Virtual -and $_.Status -eq 'up'}).Name
             Set-DnsClientServerAddress -InterfaceAlias $ethernetadaptername -ServerAddresses $newDNS; Start-Sleep -s 2
             ipconfig /flushdns; Start-Sleep -s 2
-
-        # Create powershell profile
-            New-Item -Type File -Force $PROFILE
 
         # Create an chocolatey app-updater
             if ((Get-Childitem -Path $env:ProgramData).Name  -match "Chocolatey"){
@@ -452,7 +571,6 @@
                 
                 Register-ScheduledTask -TaskName $name -Principal $principal -Action $action -Trigger $trigger -Force | Out-Null}
             else {Write-host "Chocolatey is not installed on this system." -f red}  
-
 
     # Create restore point
         Add-Type -AssemblyName System.Windows.Forms
